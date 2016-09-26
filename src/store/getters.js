@@ -1,4 +1,4 @@
-export const allTracks = ({playlist}) => {
+export const allTracks = ({ playlist }) => {
   return playlist.albums.map( album => {
     return album.tracks.map( track => track );
   });
