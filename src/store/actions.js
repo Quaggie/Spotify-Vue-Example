@@ -22,7 +22,8 @@ export const searchTrack = ({ state, commit }, track ) => {
         name: item.name,
         duration: item.duration_ms,
         rating: item.popularity,
-        artist: item.artists.find( h => h ).name
+        artist: item.artists.find( h => h ).name,
+        img: item.album.images.length ? item.album.images.find( h => h).url : null
       }
     });
     commit(types.SET_SEARCHED_TRACKS, result)

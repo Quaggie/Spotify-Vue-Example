@@ -7,6 +7,8 @@
       :selected="selected"
       :options="localTracks"
       :searchable="true"
+      :loading="isLoading"
+      :custom-label="styleLabel"
       @search-change="searchTrack"
       @update="updateSelected"
       label="name"
@@ -20,7 +22,7 @@
         <li :key="album.id" v-for="album in albums">
           <p>Album: {{ album.id }}</p>
           <h4>Tracks</h4>
-          <button type="button" @click="addTrack(album, track)">Add track</button>
+          <button type="button" @click="addTrack(album)">Add track</button>
           <ul>
             <div v-if="album.tracks && album.tracks.length">
               <li :key="album.id" v-for="track in album.tracks">
@@ -43,7 +45,9 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from 'vuex';
-import Multiselect from 'vue-multiselect'
+import Multiselect from 'vue-multiselect';
+import debounce from 'lodash/debounce';
+import moment from 'moment';
 
 export default {
   data () {
@@ -63,8 +67,14 @@ export default {
   }),
   methods: {
     searchTrack (search) {
+      if (this.isLoading) return;
+      // if (search.trim().length <= 0) {
+      //   this.$store.commit('SET_SEARCHED_TRACKS', []);
+      //   this.localTracks = [];
+      // }
+
       this.isLoading = true
-      return this.$store.dispatch('searchTrack', search)
+      this.$store.dispatch('searchTrack', search)
       .then( tracks => {
         this.isLoading = false;
         console.log('Tracks -> ');
@@ -74,9 +84,10 @@ export default {
       .catch( err => {
         this.isLoading = false;
         console.log(`Err -> ${err}`);
-      })
+      });
     },
     updateSelected: selected => { this.selected = selected },
+    styleLabel: ({ name, artist, duration }) => `${name} (${moment(duration).format('m:ss')}) - ${artist}`,
     createAlbum: mapMutations(['CREATE_ALBUM']).CREATE_ALBUM,
     addTrack (album, track) {
       const trk = {
