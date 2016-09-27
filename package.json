@@ -13,6 +13,8 @@
     "deep-freeze": "0.0.1",
     "lodash": "^4.16.2",
     "vue": "^2.0.0-rc.1",
+    "vue-multiselect": "^2.0.0-beta.3",
+    "vue-resource": "^1.0.3",
     "vuex": "^2.0.0-rc.6"
   },
   "devDependencies": {

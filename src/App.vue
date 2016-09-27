@@ -2,7 +2,16 @@
   <div id="app">
     <h2>Playlist</h2>
     <br>
-    <input v-model="searchInput" @keyup.enter="searchTrack">
+    <label>Pesquise a musica</label>
+    <multiselect
+      :selected="selected"
+      :options="localTracks"
+      :searchable="true"
+      @search-change="searchTrack"
+      @update="updateSelected"
+      label="name"
+      track-by="id">
+    </multiselect>
 
     <h3>Albums</h3>
     <button type="button" @click="createAlbum">Create Album</button>
@@ -11,14 +20,7 @@
         <li :key="album.id" v-for="album in albums">
           <p>Album: {{ album.id }}</p>
           <h4>Tracks</h4>
-          <button type="button" @click="addTrack({ album, track: {
-            id: Math.random(10000),
-            name: '',
-            duration: 0,
-            rating: '',
-            artist: ''
-          }
-          })">Add track</button>
+          <button type="button" @click="addTrack(album, track)">Add track</button>
           <ul>
             <div v-if="album.tracks && album.tracks.length">
               <li :key="album.id" v-for="track in album.tracks">
@@ -41,28 +43,51 @@
 
 <script>
 import { mapGetters, mapActions, mapMutations } from 'vuex';
+import Multiselect from 'vue-multiselect'
 
 export default {
   data () {
     return {
-      searchInput: ''
-    };
+      localTracks: [],
+      isLoading: false,
+      selected: null
+    }
+  },
+  components: {
+    Multiselect
   },
   computed: mapGetters({
     albums: 'allAlbums',
-    tracks: 'allTracks'
+    tracks: 'allTracks',
+    searchedTracks: 'searchedTracks'
   }),
   methods: {
-    searchTrack () {
-      this.$store.dispatch('searchTrack', this.searchInput)
-      .then( track => {
-        console.log(`Track found -> ${JSON.stringify(track)}`)
-        this.searchInput = '';
+    searchTrack (search) {
+      this.isLoading = true
+      return this.$store.dispatch('searchTrack', search)
+      .then( tracks => {
+        this.isLoading = false;
+        console.log('Tracks -> ');
+        console.log(tracks);
+        this.localTracks = tracks
       })
-      .catch( err => console.log(`Err -> ${err}`))
+      .catch( err => {
+        this.isLoading = false;
+        console.log(`Err -> ${err}`);
+      })
     },
+    updateSelected: selected => { this.selected = selected },
     createAlbum: mapMutations(['CREATE_ALBUM']).CREATE_ALBUM,
-    addTrack: mapMutations(['ADD_TRACK']).ADD_TRACK
+    addTrack (album, track) {
+      const trk = {
+        id: Math.random(10000),
+        name: '',
+        duration: 0,
+        rating: '',
+        artist: ''
+      }
+      this.$store.commit('ADD_TRACK', { album, track: trk })
+    }
   }
 }
 </script>

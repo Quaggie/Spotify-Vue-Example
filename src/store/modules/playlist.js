@@ -3,7 +3,8 @@ import * as types from '../mutation-types'
 // initial state
 const state = {
   id: 0,
-  albums: []
+  albums: [],
+  searchedTracks: []
 };
 
 // mutations
@@ -42,7 +43,12 @@ const mutations = {
         break;
       }
     }
+  },
+
+  [types.SET_SEARCHED_TRACKS] (state, tracks) {
+    state.searchedTracks = tracks
   }
+
 };
 
 export default {

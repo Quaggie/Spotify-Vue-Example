@@ -3,4 +3,5 @@ export const SEARCH_TRACK = 'SEARCH_TRACK';
 export const REMOVE_TRACK = 'REMOVE_TRACK';
 export const CREATE_ALBUM = 'CREATE_ALBUM';
 export const REMOVE_ALBUM = 'REMOVE_ALBUM';
+export const SET_SEARCHED_TRACKS = 'SET_SEARCHED_TRACKS';
 // Filter..
