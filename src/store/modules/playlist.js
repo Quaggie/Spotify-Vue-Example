@@ -24,6 +24,7 @@ const mutations = {
   [types.ADD_TRACK] (state, { album, track }) {
     for (let albm of state.albums) {
       if (albm.id === album.id) {
+        if (albm.tracks.find( t => t.id === track.id )) break;
         albm.tracks.push({
           id: track.id,
           name: track.name,
@@ -39,7 +40,7 @@ const mutations = {
   [types.REMOVE_TRACK] (state, { album, track }) {
     for (let albm of state.albums) {
       if (albm.id === album.id) {
-        albm.tracks = tracks.filter( ({ id }) => existingTrack.id !== id);
+        albm.tracks = albm.tracks.filter( ({ id }) => track.id !== id);
         break;
       }
     }

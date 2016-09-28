@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div>
     <h2>Playlist</h2>
     <br>
     <label>Pesquise a musica</label>
@@ -14,18 +14,28 @@
       label="name"
       track-by="id">
     </multiselect>
+    <br>
+    <div v-if="selected && albums && albums.length">
+      <select v-model="selectedAlbum" @change="onSelectAlbum">
+        <option :key="album.id" v-for="album in albums" :value="album.id">
+          Album: {{ album.id }}
+        </option>
+      </select>
+    </div>
+    <div v-else>
+      <p>Nenhum album disponível. Gostaria de adicionar um?</p>
+    </div>
 
     <h3>Albums</h3>
     <button type="button" @click="createAlbum">Create Album</button>
     <ul>
       <div v-if="albums && albums.length">
         <li :key="album.id" v-for="album in albums">
-          <p>Album: {{ album.id }}</p>
-          <h4>Tracks</h4>
-          <button type="button" @click="addTrack(album)">Add track</button>
+          <p><b>Album</b>: {{ album.id }}</p>
+          <h4><u>Tracks</u></h4>
           <ul>
             <div v-if="album.tracks && album.tracks.length">
-              <li :key="album.id" v-for="track in album.tracks">
+              <li :key="album.id" v-for="track in album.tracks" @click="removeTrack({album, track})">
                 <p>Id: {{ track.id }}, Name: {{ track.name }}, Duration: {{ track.duration }}, Artist: {{ track.artist }}</p>
               </li>
             </div>
@@ -33,6 +43,7 @@
               <p>No tracks available</p>
             </div>
           </ul>
+          <br>
         </li>
       </div>
       <div v-else>
@@ -54,7 +65,8 @@ export default {
     return {
       localTracks: [],
       isLoading: false,
-      selected: null
+      selected: null,
+      selectedAlbum: null
     }
   },
   components: {
@@ -86,18 +98,31 @@ export default {
         console.log(`Err -> ${err}`);
       });
     },
-    updateSelected: selected => { this.selected = selected },
+    updateSelected (selected) {
+      this.selected = selected;
+      this.modalVisible = true
+      // open modal
+      // Create or choose album
+    },
+    onSelectAlbum (e) {
+      if (!this.selectedAlbum) return;
+      const album = this.albums.find( a => a.id === Number(e.target.value));
+      this.addTrack(album, this.selected);
+    },
     styleLabel: ({ name, artist, duration }) => `${name} (${moment(duration).format('m:ss')}) - ${artist}`,
     createAlbum: mapMutations(['CREATE_ALBUM']).CREATE_ALBUM,
+    removeTrack: mapMutations(['REMOVE_TRACK']).REMOVE_TRACK,
     addTrack (album, track) {
-      const trk = {
+      console.log('album -> ', album);
+      track = track || {
         id: Math.random(10000),
         name: '',
         duration: 0,
         rating: '',
         artist: ''
-      }
-      this.$store.commit('ADD_TRACK', { album, track: trk })
+      };
+      this.$store.commit('ADD_TRACK', { album, track })
+      this.selected = null
     }
   }
 }
